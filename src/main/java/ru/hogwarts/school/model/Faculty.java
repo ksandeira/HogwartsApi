@@ -1,6 +1,9 @@
 package ru.hogwarts.school.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -18,6 +21,10 @@ public class Faculty {
 
     @Version
     private Long version = 0L;
+
+    @OneToMany(mappedBy = "faculty", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Student> students = new ArrayList<>();
 
     public Faculty() {
     }
@@ -51,6 +58,24 @@ public class Faculty {
         this.color = color;
     }
 
+    public List<Student> getStudents() {
+        return students;
+    }
+
+    public void setStudents(List<Student> students) {
+        this.students = students;
+    }
+
+    public void addStudent(Student student) {
+        students.add(student);
+        student.setFaculty(this);
+    }
+
+    public void removeStudent(Student student) {
+        students.remove(student);
+        student.setFaculty(null);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -68,6 +93,6 @@ public class Faculty {
 
     @Override
     public String toString() {
-        return "Faculty{" + "id=" + id + ", name='" + name + '\'' + ", color='" + color + '\'' + '}';
+        return "Faculty{" + "id=" + id + ", name='" + name + '\'' + ", color='" + color + '\'' + ", studentsCount=" + students.size() + '}';
     }
 }
