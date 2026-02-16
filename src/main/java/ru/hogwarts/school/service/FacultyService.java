@@ -1,6 +1,7 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.FacultyRepository;
@@ -9,23 +10,24 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
+@Transactional
 public class FacultyService {
     private final FacultyRepository facultyRepository;
+
 
     public FacultyService(FacultyRepository facultyRepository) {
         this.facultyRepository = facultyRepository;
     }
 
     public Faculty createFaculty(Faculty faculty) {
+        if (faculty.getId() != null) {
+            throw new IllegalArgumentException("Cannot create faculty with existing ID");
+        }
         return facultyRepository.save(faculty);
     }
 
     public Faculty getFacultyById(Long id) {
         return facultyRepository.findById(id).orElse(null);
-    }
-
-    public List<Faculty> getAllFaculties() {
-        return facultyRepository.findAll();
     }
 
     public Faculty updateFaculty(Long id, Faculty facultyDetails) {
@@ -52,6 +54,10 @@ public class FacultyService {
         return faculty;
     }
 
+    public List<Faculty> getAllFaculties() {
+        return facultyRepository.findAll();
+    }
+
     public List<Faculty> getFacultiesByColor(String color) {
         return facultyRepository.findByColor(color);
     }
@@ -63,10 +69,6 @@ public class FacultyService {
     public List<Faculty> getFacultiesByNameOrColor(String searchString) {
         return facultyRepository.findByNameContainingIgnoreCaseOrColorContainingIgnoreCase(
                 searchString, searchString);
-    }
-
-    public List<Faculty> getFacultiesByNameAndColor(String name, String color) {
-        return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(name, color);
     }
 
     public List<Student> getFacultyStudents(Long facultyId) {

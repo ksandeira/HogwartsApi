@@ -1,9 +1,11 @@
 package ru.hogwarts.school.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-
 import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @Table(name = "students")
 public class Student {
@@ -11,33 +13,26 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;
-
-    @Column(nullable = false)
     private int age;
 
     @Version
-    private Long version = 0L;
+    private Long version;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "faculty_id")
+    @JsonIgnore
     private Faculty faculty;
 
-    public Student() {
-    }
+    // constructors
+    public Student() {}
 
     public Student(String name, int age) {
         this.name = name;
         this.age = age;
     }
 
-    public Student(String name, int age, Faculty faculty) {
-        this.name = name;
-        this.age = age;
-        this.faculty = faculty;
-    }
-
+    // getters and setters
     public Long getId() {
         return id;
     }
@@ -62,12 +57,24 @@ public class Student {
         this.age = age;
     }
 
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
     public Faculty getFaculty() {
         return faculty;
     }
 
     public void setFaculty(Faculty faculty) {
         this.faculty = faculty;
+    }
+
+    public Long getFacultyId() {
+        return faculty != null ? faculty.getId() : null;
     }
 
     @Override
@@ -87,7 +94,11 @@ public class Student {
 
     @Override
     public String toString() {
-        String facultyName = (faculty != null) ? faculty.getName() : "без факультета";
-        return "Student{" + "id=" + id + ", name='" + name + '\'' + ", age=" + age + ", faculty=" + facultyName + '}';
+        return "Student{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", faculty=" + (faculty != null ? faculty.getId() : null) +
+                '}';
     }
 }
