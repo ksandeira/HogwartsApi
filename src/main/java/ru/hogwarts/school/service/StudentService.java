@@ -37,7 +37,7 @@ public class StudentService {
         if (studentDetails.getName() != null) {
             student.setName(studentDetails.getName());
         }
-        if (studentDetails.getAge() > 0) { // Предполагаем, что возраст всегда > 0
+        if (studentDetails.getAge() > 0) {
             student.setAge(studentDetails.getAge());
         }
         if (studentDetails.getFaculty() != null) {
@@ -95,5 +95,17 @@ public class StudentService {
                 .filter(student -> student.getFaculty() != null &&
                         student.getFaculty().getId().equals(facultyId))
                 .collect(Collectors.toList());
+    }
+
+    public long getTotalStudentCount() {
+        return studentRepository.getTotalStudentsCount();
+    }
+
+    public double getAverageStudentAge() {
+        return studentRepository.getAverageStudentAge();
+    }
+
+    public List<Student> getLastFiveStudents() {
+        return studentRepository.getLastFiveStudents();
     }
 }
