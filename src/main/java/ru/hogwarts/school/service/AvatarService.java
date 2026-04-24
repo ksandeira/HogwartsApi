@@ -1,5 +1,7 @@
 package ru.hogwarts.school.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,14 +12,17 @@ import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.AvatarRepository;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Service
 public class AvatarService {
-    @Value("${avatars.directory.path}")
+
+    private static final Logger logger = LoggerFactory.getLogger(AvatarService.class);
+
+    @Value("${avatars.directory.path:./avatars}")
     private String avatarsDir;
 
     private final AvatarRepository avatarRepository;
@@ -29,19 +34,24 @@ public class AvatarService {
     }
 
     public void uploadAvatar(Long studentId, MultipartFile file) throws IOException {
+        logger.info("Was invoked method for upload avatar for student id: {}", studentId);
+
         Student student = studentService.getStudentById(studentId);
         if (student == null) {
+            logger.error("Student with id = {} not found, cannot upload avatar", studentId);
             throw new IllegalArgumentException("Student not found");
         }
 
         Path uploadPath = Paths.get(avatarsDir);
         if (!Files.exists(uploadPath)) {
+            logger.debug("Creating avatars directory: {}", avatarsDir);
             Files.createDirectories(uploadPath);
         }
 
         String fileName = studentId + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
         Path filePath = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), filePath);
+        logger.debug("File saved to: {}", filePath);
 
         Avatar avatar = avatarRepository.findByStudentId(studentId).orElse(new Avatar());
         avatar.setStudent(student);
@@ -51,14 +61,25 @@ public class AvatarService {
         avatar.setData(file.getBytes());
 
         avatarRepository.save(avatar);
+        logger.info("Avatar successfully uploaded for student id: {}", studentId);
     }
 
     public Avatar getAvatar(Long studentId) {
-        return avatarRepository.findByStudentId(studentId).orElse(null);
+        logger.info("Was invoked method for get avatar for student id: {}", studentId);
+
+        Avatar avatar = avatarRepository.findByStudentId(studentId).orElse(null);
+        if (avatar == null) {
+            logger.warn("Avatar not found for student id: {}", studentId);
+        }
+        return avatar;
     }
 
     public Page<Avatar> getAllAvatars(int page, int size) {
+        logger.info("Was invoked method for get all avatars, page: {}, size: {}", page, size);
         Pageable pageable = PageRequest.of(page, size);
-        return avatarRepository.findAll(pageable);
+        Page<Avatar> avatars = avatarRepository.findAll(pageable);
+        logger.debug("Found {} avatars total, showing {} on page {}",
+                avatars.getTotalElements(), avatars.getNumberOfElements(), page);
+        return avatars;
     }
 }

@@ -95,7 +95,7 @@ public class StudentController {
 
     @GetMapping("/count")
     public ResponseEntity<Long> getTotalStudentsCount() {
-        long count = studentService.getTotalStudentCount();
+        long count = studentService.getTotalStudentsCount();
         return ResponseEntity.ok(count);
     }
 
