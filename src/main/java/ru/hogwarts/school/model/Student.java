@@ -3,6 +3,9 @@ package ru.hogwarts.school.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -24,7 +27,6 @@ public class Student {
     @JsonIgnore
     private Faculty faculty;
 
-    // constructors
     public Student() {}
 
     public Student(String name, int age) {
@@ -32,7 +34,6 @@ public class Student {
         this.age = age;
     }
 
-    // getters and setters
     public Long getId() {
         return id;
     }

@@ -1,8 +1,7 @@
 package ru.hogwarts.school.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;  // ← Добавьте импорт, если решите использовать JsonIgnore здесь
 import jakarta.persistence.*;
-import java.util.ArrayList;  // ← Добавьте для инициализации списка
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -105,7 +104,6 @@ public class Faculty {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", color='" + color + '\'' +
-                ", studentsCount=" + (students != null ? students.size() : 0) +  // ← Полезно для отладки
-                '}';
+                ", studentsCount=" + (students != null ? students.size() : 0) + '}';
     }
 }
