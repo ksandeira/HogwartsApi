@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: course-four-lesson-three-indexes
+      author: student
+      comment: "Добавление индексов для оптимизации поиска"
+      changes:
+        - createIndex:
+            indexName: idx_student_name
+            tableName: student
+            columns:
+              - column:
+                  name: name
+            unique: false
+        - createIndex:
+            indexName: idx_faculty_name_color
+            tableName: faculty
+            columns:
+              - column:
+                  name: name
+              - column:
+                  name: color
+            unique: false
