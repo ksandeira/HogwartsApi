@@ -1,5 +1,7 @@
 package ru.hogwarts.school.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hogwarts.school.model.Faculty;
@@ -14,76 +16,117 @@ import java.util.List;
 public class FacultyService {
     private final FacultyRepository facultyRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(FacultyService.class);
 
     public FacultyService(FacultyRepository facultyRepository) {
         this.facultyRepository = facultyRepository;
     }
 
     public Faculty createFaculty(Faculty faculty) {
+        logger.info("Was invoked method for create faculty");
+        logger.debug("Creating faculty with name: {}, color: {}", faculty.getName(), faculty.getColor());
+
         if (faculty.getId() != null) {
+            logger.warn("Attempting to create faculty with existing ID: {}", faculty.getId());
             throw new IllegalArgumentException("Cannot create faculty with existing ID");
         }
-        return facultyRepository.save(faculty);
+
+        Faculty savedFaculty = facultyRepository.save(faculty);
+        logger.info("Faculty created with id: {}", savedFaculty.getId());
+        return savedFaculty;
     }
 
     public Faculty getFacultyById(Long id) {
-        return facultyRepository.findById(id).orElse(null);
+        logger.info("Was invoked method for get faculty by id: {}", id);
+
+        Faculty faculty = facultyRepository.findById(id).orElse(null);
+        if (faculty == null) {
+            logger.warn("Faculty with id = {} not found", id);
+        } else {
+            logger.debug("Found faculty: {}", faculty.getName());
+        }
+        return faculty;
     }
 
     public Faculty updateFaculty(Long id, Faculty facultyDetails) {
+        logger.info("Was invoked method for update faculty with id: {}", id);
+
         Faculty faculty = getFacultyById(id);
         if (faculty == null) {
+            logger.error("Cannot update: faculty with id = {} not found", id);
             return null;
         }
 
         if (facultyDetails.getName() != null) {
+            logger.debug("Updating name from '{}' to '{}'", faculty.getName(), facultyDetails.getName());
             faculty.setName(facultyDetails.getName());
         }
         if (facultyDetails.getColor() != null) {
+            logger.debug("Updating color from '{}' to '{}'", faculty.getColor(), facultyDetails.getColor());
             faculty.setColor(facultyDetails.getColor());
         }
 
-        return facultyRepository.save(faculty);
+        Faculty updatedFaculty = facultyRepository.save(faculty);
+        logger.info("Faculty with id = {} successfully updated", id);
+        return updatedFaculty;
     }
 
     public Faculty deleteFaculty(Long id) {
+        logger.info("Was invoked method for delete faculty with id: {}", id);
+
         Faculty faculty = getFacultyById(id);
         if (faculty != null) {
+            logger.warn("Deleting faculty with id = {}, name = {}", id, faculty.getName());
             facultyRepository.deleteById(id);
+            logger.info("Faculty with id = {} successfully deleted", id);
+        } else {
+            logger.error("Cannot delete: faculty with id = {} not found", id);
         }
         return faculty;
     }
 
     public List<Faculty> getAllFaculties() {
-        return facultyRepository.findAll();
+        logger.info("Was invoked method for get all faculties");
+        List<Faculty> faculties = facultyRepository.findAll();
+        logger.debug("Found {} faculties", faculties.size());
+        return faculties;
     }
 
     public List<Faculty> getFacultiesByColor(String color) {
-        return facultyRepository.findByColor(color);
+        logger.info("Was invoked method for get faculties by color: {}", color);
+        List<Faculty> faculties = facultyRepository.findByColor(color);
+        logger.debug("Found {} faculties with color {}", faculties.size(), color);
+        return faculties;
     }
 
     public Faculty getFacultyByName(String name) {
-        return facultyRepository.findByName(name);
+        logger.info("Was invoked method for get faculty by name: {}", name);
+        Faculty faculty = facultyRepository.findByName(name);
+        if (faculty == null) {
+            logger.warn("Faculty with name = {} not found", name);
+        }
+        return faculty;
     }
 
     public List<Faculty> getFacultiesByNameOrColor(String searchString) {
-        return facultyRepository.findByNameContainingIgnoreCaseOrColorContainingIgnoreCase(
+        logger.info("Was invoked method for get faculties by name or color: {}", searchString);
+        List<Faculty> faculties = facultyRepository.findByNameContainingIgnoreCaseOrColorContainingIgnoreCase(
                 searchString, searchString);
+        logger.debug("Found {} faculties matching search", faculties.size());
+        return faculties;
     }
 
     public List<Student> getFacultyStudents(Long facultyId) {
+        logger.info("Was invoked method for get faculty students, faculty id: {}", facultyId);
+
         Faculty faculty = getFacultyById(facultyId);
         if (faculty == null) {
+            logger.warn("Faculty with id = {} not found, cannot get students", facultyId);
             return Collections.emptyList();
         }
-        return faculty.getStudents();
-    }
 
-    public int getFacultyStudentCount(Long facultyId) {
-        Faculty faculty = getFacultyById(facultyId);
-        if (faculty == null || faculty.getStudents() == null) {
-            return 0;
-        }
-        return faculty.getStudents().size();
+        List<Student> students = faculty.getStudents();
+        logger.debug("Faculty has {} students", students.size());
+        return students;
     }
 }
