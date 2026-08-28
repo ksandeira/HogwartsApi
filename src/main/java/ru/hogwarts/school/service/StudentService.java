@@ -8,7 +8,6 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -155,5 +154,11 @@ public class StudentService {
         List<Student> students = studentRepository.getLastFiveStudents();
         logger.debug("Returning {} last students", students.size());
         return students;
+    }
+
+    @GetMapping("/names-starting-with-a")
+    public List<String> getStudentNamesStartingWithA() {
+        List<String> names = studentService.getStudentNamesStartingWithA();
+        return ResponseEntity.ok(names);
     }
 }

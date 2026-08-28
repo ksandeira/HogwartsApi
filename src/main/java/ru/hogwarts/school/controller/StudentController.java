@@ -110,4 +110,10 @@ public class StudentController {
         List<Student> students = studentService.getLastFiveStudents();
         return ResponseEntity.ok(students);
     }
+
+    @GetMapping("/names-starting-with-a")
+    public ResponseEntity<List<String>> getStudentNamesStartingWithA() {
+        List<String> names = studentService.getStudentNamesStartingWithA();
+        return ResponseEntity.ok(names);
+    }
 }
