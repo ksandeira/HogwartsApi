@@ -8,6 +8,7 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -144,7 +145,12 @@ public class StudentService {
 
     public double getAverageStudentAge() {
         logger.info("Was invoked method for get average student age");
-        double average = studentRepository.getAverageStudentAge();
+
+        double average = studentRepository.findAll().stream()
+                .mapToInt(Student::getAge)
+                .average()
+                .orElse(0.0);
+
         logger.debug("Average student age: {}", average);
         return average;
     }
@@ -156,9 +162,17 @@ public class StudentService {
         return students;
     }
 
-    @GetMapping("/names-starting-with-a")
     public List<String> getStudentNamesStartingWithA() {
-        List<String> names = studentService.getStudentNamesStartingWithA();
-        return ResponseEntity.ok(names);
+        logger.info("Was invoked method for get student names starting with A");
+
+        List<String> names = studentRepository.findAll().stream()
+                .map(Student::getName)
+                .filter(name -> name != null && name.toUpperCase().startsWith("A"))
+                .map(String::toUpperCase)
+                .sorted()
+                .collect(Collectors.toList());
+
+        logger.debug("Found {} students with names starting with A", names.size());
+        return names;
     }
 }

@@ -1,22 +1,73 @@
 databaseChangeLog:
   - changeSet:
-      id: course-four-lesson-three-indexes
-      author: student
-      comment: "Добавление индексов для оптимизации поиска"
+      id: create-student-table
+      author: your_name
       changes:
-        - createIndex:
-            indexName: idx_student_name
+        - createTable:
             tableName: student
             columns:
               - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
                   name: name
-            unique: false
-        - createIndex:
-            indexName: idx_faculty_name_color
+                  type: VARCHAR(255)
+              - column:
+                  name: age
+                  type: INT
+              - column:
+                  name: faculty_id
+                  type: BIGINT
+              - column:
+                  name: version
+                  type: BIGINT
+
+  - changeSet:
+      id: create-faculty-table
+      author: your_name
+      changes:
+        - createTable:
             tableName: faculty
             columns:
               - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
                   name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
               - column:
                   name: color
-            unique: false
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: BIGINT
+
+  - changeSet:
+      id: course-four-lesson-three-indexes
+      author: student
+      changes:
+        - createIndex:
+            tableName: student
+            indexName: idx_student_name
+            columns:
+              - column:
+                  name: name
+        - createIndex:
+            tableName: student
+            indexName: idx_student_age
+            columns:
+              - column:
+                  name: age
