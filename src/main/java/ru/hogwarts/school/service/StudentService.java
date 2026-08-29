@@ -145,7 +145,12 @@ public class StudentService {
 
     public double getAverageStudentAge() {
         logger.info("Was invoked method for get average student age");
-        double average = studentRepository.getAverageStudentAge();
+
+        double average = studentRepository.findAll().stream()
+                .mapToInt(Student::getAge)
+                .average()
+                .orElse(0.0);
+
         logger.debug("Average student age: {}", average);
         return average;
     }
@@ -155,5 +160,19 @@ public class StudentService {
         List<Student> students = studentRepository.getLastFiveStudents();
         logger.debug("Returning {} last students", students.size());
         return students;
+    }
+
+    public List<String> getStudentNamesStartingWithA() {
+        logger.info("Was invoked method for get student names starting with A");
+
+        List<String> names = studentRepository.findAll().stream()
+                .map(Student::getName)
+                .filter(name -> name != null && name.toUpperCase().startsWith("A"))
+                .map(String::toUpperCase)
+                .sorted()
+                .collect(Collectors.toList());
+
+        logger.debug("Found {} students with names starting with A", names.size());
+        return names;
     }
 }
